@@ -2,6 +2,8 @@ import pygame
 
 pygame.init()
 
+#Just initializing all of the constants
+
 AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1240, 1200, 430, 300
 screen = pygame.display.set_mode((AWIDTH, AHEIGHT))
 RED = (255,0,0)
@@ -28,9 +30,12 @@ NOTES = {
     'b': 11,
 }
 
+#This is just backwards notes. I'm honestly not very good at naming variables
 SETON = {v: k for k, v in NOTES.items()}
 
 MODES = ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian']
+
+#This is just for indexing in the TUNINGS dictionary
 instruments = ['Guitar','Bass Guitar','Ukulele','Mandolin']
 
 instrument_index = 0
@@ -39,7 +44,12 @@ TUNINGS = {'Guitar': ['e','a','d','g','b','e'],
           'Ukulele': ['g','c','e','a'],
           'Mandolin': ['g','d','a','e']
 }
+
+#Just a bunsh of variables that help to handle the math and modular stuff
 tuning = TUNINGS[instruments[instrument_index]][:]
+
+#searching is used to pick out the notes from the scale 
+#switch is to handle the math for switching between the modes and stay on the same note
 searching = [0,2,4,5,7,9,11]
 switch = [2,2,1,2,2,2,1]
 pos = 0
@@ -48,6 +58,7 @@ button = 0
 string = 0
 
 def scale(position,mode):
+    #This handles all of the math for mapping out the notes and where they go on the fretboard
     notess = []
     searching = [0,2,4,5,7,9,11]
     fretboard = [[None for _ in range(12)] for _ in range(len(tuning))]
@@ -64,6 +75,7 @@ def scale(position,mode):
     return notess, fretboard
 
 def visuals(fretboard,notess):
+    #This handles the actual visuals for the UI and distinguishing the root notes, notes in the scale, and notes not in the scale
     frets = []
     for i, x in enumerate(fretboard):
         for y, z in enumerate(x):
@@ -79,13 +91,16 @@ def visuals(fretboard,notess):
 
     return frets
 
+#Just initializes everything
 notess, fretboard = scale(pos,mode)
 frets = visuals(fretboard, notess)
 
+#running loop
 running = True
 while running:
     screen.fill(WHITE)
 
+    #Draws the frets
     for i in frets:
         a, b, c = i
         pygame.draw.rect(screen, b, a)
@@ -94,6 +109,7 @@ while running:
         note_fret = fret_note.get_rect(center=a.center)
         screen.blit(fret_note, note_fret)
 
+    #Draws the notes to go with the frets
     for x, i in enumerate(tuning):
         if button == 1 and string == x:
             string_text = FONT.render(i.upper(), True, (255, 0, 0))
@@ -101,6 +117,8 @@ while running:
             string_text = FONT.render(i.upper(), True, (0, 0, 0))
 
         screen.blit(string_text, (1215, HEIGHT//(len(tuning))*((len(tuning)-1)-x)+20))
+
+    #Draws all of the text for the instructions and other visuals
 
     color = GREEN if button == 0 else RED
     tuning_text = FONT.render('⬛', True, color)
@@ -136,12 +154,13 @@ while running:
     instructions = FONT.render('press [1] and [2] to switch between changing the tuning, changing the scale, and changing instrument | [3] to reset everything', True, (100, 100, 100))
     screen.blit(instructions, (320, 400))
 
+    #Button inputs
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         
+        #This block is for [1] and [2] going forward and backward on the options and [3] to reset everything back to standard tuning on the instrument
         elif event.type == pygame.KEYDOWN:
-
             if event.key == pygame.K_1:
                 button = (button - 1) % 3
             if event.key == pygame.K_2:
@@ -155,6 +174,7 @@ while running:
                 notess, fretboard = scale(pos,mode)
                 frets = visuals(fretboard, notess)
 
+            #This block handles changing scales
             if button == 0:
                 if event.key == pygame.K_RIGHT:
                     pos = (pos + 1) % 12
@@ -174,7 +194,8 @@ while running:
                     pos = (pos + switch[mode]) % 12
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
-                
+            
+            #This block handles chaning the tunings
             elif button == 1:
                 if event.key == pygame.K_RIGHT:
                     tuning[string] = SETON[(NOTES[tuning[string]] + 1) % 12]
@@ -188,7 +209,8 @@ while running:
                     string = (string + 1) % (len(tuning))
                 elif event.key == pygame.K_DOWN:
                     string = (string - 1) % (len(tuning))
-
+                    
+            #This block handles changning the instrument
             elif button == 2:
                 if event.key == pygame.K_RIGHT:
                     instrument_index = (instrument_index + 1) % len(instruments)
