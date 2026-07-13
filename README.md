@@ -11,3 +11,6 @@ scale in all 7 modes.) in any conceivable tuning. None of the theory is hardcode
 (other than thestandard/common tuning for all of the instruments so far) everything is 
 solved by math, and the code is very modular allowing for the addition of things in 
 minutes whether it be adding another instrument or whatever.
+
+I get this Isn't something too crazy or groundbreaking but I just thought that I'd put 
+it out there anyways.
