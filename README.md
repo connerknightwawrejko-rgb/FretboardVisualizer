@@ -1,3 +1,5 @@
+Prerequisites: All you need to run the code is pygame and obviously python 3 installed
+
 When I started guitar I always had trouble with memorizing the fretboard and putting it 
 to use in the ways that I wanted to; other fretboard visualizers that I've found just 
 seemed so clunky and would only have a few hardcoded tunings on them. This was especially
