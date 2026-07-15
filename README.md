@@ -16,3 +16,7 @@ minutes whether it be adding another instrument or whatever.
 
 I get this Isn't something too crazy or groundbreaking but I just thought that I'd put 
 it out there anyways.
+
+(Heres a still frame of it.)
+<img width="1238" height="427" alt="image" src="https://github.com/user-attachments/assets/8d7a7529-82d6-4b1e-a9fd-19185a52c40f" />
+
