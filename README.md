@@ -10,7 +10,7 @@ front of me.)
 
 This visualizer can show up to 84 different scales (all 12 notes in the chromatic 
 scale in all 7 modes.) in any conceivable tuning. None of the theory is hardcoded in 
-(other than thestandard/common tuning for all of the instruments so far) everything is 
+(other than the standard/common tuning for all of the instruments so far) everything is 
 solved by math, and the code is very modular allowing for the addition of things in 
 minutes whether it be adding another instrument or whatever.
 
