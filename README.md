@@ -8,15 +8,19 @@ guitar with fewer resources to learn the fretboard (I get that I can just use mu
 knowledge in order to map out the fretboard in my head but I just like having a visual in
 front of me.)
 
-This visualizer can show up to 84 different scales (all 12 notes in the chromatic 
+This Python script can show up to 84 different scales (all 12 notes in the chromatic 
 scale in all 7 modes.) in any conceivable tuning. None of the theory is hard coded in 
 (other than the standard/common tuning for all of the instruments so far) everything is 
 solved by math, and the code is very modular allowing for the addition of things in 
 minutes whether it be adding another instrument or whatever.
 
-Also, after I updated it recently, it now can identify chords pretty accurately,
-change the length of the fretboard instead of being stuck at 12 frets, and it has
-some more small changes on top of that.
+Also, after I updated it recently, it now has a built in chord detection engine that
+can identify most chords you'd need it to as well as being able to identify complex
+jazz chords/rarer chords (Something to note is that there are so many ways to write
+certain chord names and there are a ton of rules that its hard to have them all, so if
+you find an error in it make sure to mention it.) It can now also change the amount of
+shown frets. there were plenty of other small changes I added, but these were the main
+ones.
 
 I get this Isn't something too crazy or groundbreaking but I just thought that I'd put 
 it out there any ways.
