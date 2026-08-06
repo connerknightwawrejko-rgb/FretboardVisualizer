@@ -19,7 +19,8 @@ can identify most chords you'd need it to as well as being able to identify comp
 jazz chords/rarer chords (Something to note is that there are so many ways to write
 certain chord names and there are a ton of rules that its hard to have them all, so if
 you find an error in it make sure to mention it.) It can now also change the amount of
-shown frets. there were plenty of other small changes I added, but these were the main
+shown frets. Also it can now let you highlight only specific notes rather than just seeing
+whole scales. there were plenty of other small changes I added, but these were the main
 ones.
 
 I get this Isn't something too crazy or groundbreaking but I just thought that I'd put 
