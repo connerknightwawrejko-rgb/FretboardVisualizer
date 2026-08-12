@@ -23,10 +23,16 @@ shown frets. Also it can now let you highlight only specific notes rather than j
 whole scales. there were plenty of other small changes I added, but these were the main
 ones.
 
+After the most recent update as of 8/11/2026 I added in a negative harmony id function.
+I was just interested, and its slightly janky so to make up for that it just gives you the
+negative notes off to the side in parentheses. Not sure how useful this feature is, but I
+added it anyway.
+
 I get this Isn't something too crazy or groundbreaking but I just thought that I'd put 
 it out there any ways.
 
 (Here's a still frame of it.)
-<img width="1236" height="607" alt="Screenshot 2026-08-05 180219" src="https://github.com/user-attachments/assets/9e887401-f732-420d-b6cd-41b8ba466921" />
+<img width="1238" height="668" alt="image" src="https://github.com/user-attachments/assets/1cfc4591-c013-4fe3-b11a-442051dfc840" />
+
 
 
