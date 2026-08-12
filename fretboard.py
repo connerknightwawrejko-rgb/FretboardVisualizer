@@ -4,7 +4,7 @@ pygame.init()
 
 #Just initializing all of the constants
 
-AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1240, 1200, 640, 300
+AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1240, 1200, 670, 300
 screen = pygame.display.set_mode((AWIDTH, AHEIGHT))
 RED = (255,0,0)
 GREEN = (0,255,0)
@@ -79,6 +79,7 @@ cid_toggle = 0
 fretboard_len = 12
 chord_show = [None]*len(tuning)
 highlighted_notes = []
+evil_highlight = []
 
 #just because i dont want to have to keep refixing all of the placements for the instructions
 ainfo = 490
@@ -135,13 +136,9 @@ def visuals(fretboard,notess):
 #This looks like quite a lot but its really just a big block of if/elif/else statements to handle specific theory rules
 #The rest is honestly pretty self explanatory.
 def chord_id(notes):
-    actual_notes = []
-    if any(x != None for x in notes):
-        for i, x in enumerate(notes):
-            if x != None:
-                y = (NOTES[tuning[i]] + x) % 12
-                if y not in actual_notes:
-                    actual_notes.append(y)
+
+    actual_notes = notes
+    
 
     finished_chords = []
 
@@ -230,7 +227,53 @@ def chord_id(notes):
         returning = returning if len(actual_notes) >= 3 else returning + ' #Caution: Chord names may be innacurate with less than 3 different notes selected.'
 
     return returning
-    
+
+def negative_harmony(position, highlights):
+
+    searching = [0,2,4,5,7,9,11]
+    for i, x in enumerate(searching):
+        searching[i] = (x+position) % 12
+
+    tunering = [SETON[searching[0]]]
+    notesy = []
+    evil_notes = []
+    actual_evil_notes = []
+
+    dict_harmony = {
+        1: 2,
+        12: 3,
+        11: 4,
+        10: 5,
+        9: 6,
+        8: 7
+    }
+
+    ynomrah_tcid = {v: k for k, v in dict_harmony.items()}
+
+    thingers = 'c g d a e b f# c# g# d# a# f'.split(' ')
+    go = True
+    while go:
+        if thingers[0] != tunering[0]:
+            thingers.append(thingers.pop(0))
+        else:
+            go = False
+
+    for i in highlights:
+        x = thingers.index(SETON[i])+1
+        try:
+            evil_notes.append(dict_harmony[x])
+        except:
+            evil_notes.append(ynomrah_tcid[x])
+
+
+    for i in evil_notes:
+        actual_evil_notes.append(NOTES[thingers[i-1]])
+
+    for i in actual_evil_notes:
+        notesy.append(SETON[i])
+
+    return actual_evil_notes, ' '.join(notesy)
+
 #Just initializes everything
 notess, fretboard = scale(pos,mode)
 frets = visuals(fretboard, notess)
@@ -238,6 +281,19 @@ frets = visuals(fretboard, notess)
 #running loop
 running = True
 while running:
+
+    evil_highlight = []
+    if cid_toggle == 0:
+        if any(x != None for x in chord_show):
+            for i, x in enumerate(chord_show):
+                if x != None:
+                    y = (NOTES[tuning[i]] + x) % 12
+                    if y not in evil_highlight:
+                        evil_highlight.append(y)
+
+    elif cid_toggle == 1:
+        evil_highlight = highlighted_notes[:]
+
     screen.fill(WHITE)
 
     #Draws the frets
@@ -328,11 +384,28 @@ while running:
     screen.blit(instructions, (10, ainfo+60))
 
     if cid_toggle == 0:
-        chord = chord_id(chord_show)
+
+        a_chord_show = []
+        if any(x != None for x in chord_show):
+            for i, x in enumerate(chord_show):
+                if x != None:
+                    y = (NOTES[tuning[i]] + x) % 12
+                    if y not in a_chord_show:
+                        a_chord_show.append(y)
+
+        chord = chord_id(a_chord_show)
         chord = "Awaiting input..." if not chord else chord
         
         instructions = FONT.render(f'Potential Chord Names: {chord}', True, (0, 0, 0))
         screen.blit(instructions, (10, ainfo+90))
+
+    evil, also_evil = negative_harmony(pos, evil_highlight)
+        
+    evil_chord = chord_id(evil)
+    evil_chord = "Awaiting input..." if not evil_chord else evil_chord
+        
+    instructions = FONT.render(f'Negetive Harmony: {evil_chord}, ({also_evil})', True, (0, 0, 0))
+    screen.blit(instructions, (10, ainfo+150))
 
     if cid_toggle == 1:
         notes_selected = []
@@ -426,8 +499,6 @@ while running:
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
 
-                    
-                    
             #This block handles changing the amound of frets shown
             elif button == 3:
                 if event.key == pygame.K_RIGHT:
@@ -483,7 +554,7 @@ while running:
                         highlighted_notes.append((NOTES[tuning[string]]+fret)%12)
                     elif (NOTES[tuning[string]]+fret)%12 in highlighted_notes:
                         highlighted_notes.remove((NOTES[tuning[string]]+fret)%12)
-                    
+
                 notess, fretboard = scale(pos,mode)
                 frets = visuals(fretboard, notess)
                 
