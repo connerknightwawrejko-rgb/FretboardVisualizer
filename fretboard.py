@@ -199,7 +199,7 @@ def chord_id(notes):
             extensions.append("addmaj7")
         if 1 in a_list:
             extensions.append("addb9")
-        if 2 in a_list and ("7" in name or "9" not in name):
+        if 2 in a_list and 'sus2' not in name:
             extensions.append("add9")
         if 3 in a_list and has_maj3:
             extensions.append("add#9")
