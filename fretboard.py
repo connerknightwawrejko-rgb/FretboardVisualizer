@@ -59,7 +59,7 @@ instruments = ['Guitar','Bass Guitar','Ukulele','Mandolin']
 
 instrument_index = 0
 TUNINGS = {'Guitar': ['e','a','d','g','b','e'],
-          'Bass Guitar': ['a','d','g','b'],
+          'Bass Guitar': ['e','a','d','g'],
           'Ukulele': ['g','c','e','a'],
           'Mandolin': ['g','d','a','e']
 }
