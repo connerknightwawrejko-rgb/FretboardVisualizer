@@ -4,7 +4,7 @@ pygame.init()
 
 #Just initializing all of the constants
 
-AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1240, 1200, 670, 300
+AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1270, 1200, 670, 300
 screen = pygame.display.set_mode((AWIDTH, AHEIGHT))
 RED = (255,0,0)
 GREEN = (0,255,0)
@@ -34,7 +34,7 @@ CHORD_FUNCTIONS = {
 }
 
 #Just every note in the chromatic scale. Standard 12 tet stuff.
-NOTES = {
+NOTESA = {
     'c': 0,
     'c#': 1,
     'd': 2,
@@ -49,28 +49,55 @@ NOTES = {
     'b': 11,
 }
 
-#This is just backwards notes. I'm honestly not very good at naming variables
-SETON = {v: k for k, v in NOTES.items()}
+NOTESB = {
+    'c': 0,
+    'd♭': 1,
+    'd': 2,
+    'e♭': 3,
+    'e': 4,
+    'f': 5,
+    'g♭': 6,
+    'g': 7,
+    'a♭': 8,
+    'a': 9,
+    'b♭': 10,
+    'b': 11,
+}
 
-MODES = ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian']
+#This is just backwards notes. I'm honestly not very good at naming variables
+fos = 0
+notes = NOTESA if fos == 0 else NOTESB
+seton = {v: k for k, v in notes.items()}
 
 #This is just for indexing in the TUNINGS dictionary
 instruments = ['Guitar','Bass Guitar','Ukulele','Mandolin']
 
 instrument_index = 0
-TUNINGS = {'Guitar': ['e','a','d','g','b','e'],
-          'Bass Guitar': ['e','a','d','g'],
-          'Ukulele': ['g','c','e','a'],
-          'Mandolin': ['g','d','a','e']
+TUNINGS = {
+    'Guitar': [4,9,2,7,11,4],
+    'Bass Guitar': [4,9,2,7],
+    'Ukulele': [7,0,4,9],
+    'Mandolin': [7,2,9,4]
 }
+
+INTERVALS = {
+    0: ([0,2,4,5,7,9,11], [2,2,1,2,2,2,1], "Standard Diatonic Scales", [0,1,0,1,0,1,0,0,1,0,1,0], ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian']),
+    1: ([0,2,3,5,7,8,11], [2,1,2,2,1,3,1], "Harmonic Minor Scales and Modes", [1,0,1,0,0,1,0,1,0,0,1,0], ['Harmonic Minor', 'Locrian ♮6', 'Ionian ♯5', 'Dorian ♯4', 'Dorian ♯4', 'Lydian ♯2', 'Super Locrian diminished'])
+}
+
+ipick = 0
 
 #Just a bunch of variables that help to handle the math and modular stuff
 tuning = TUNINGS[instruments[instrument_index]][:]
 
 #searching is used to pick out the notes from the scale 
 #switch is to handle the math for switching between the modes and stay on the same note
-searching = [0,2,4,5,7,9,11]
-switch = [2,2,1,2,2,2,1]
+
+thingsy = INTERVALS[ipick]
+searching = thingsy[0][:]
+switch = thingsy[1][:]
+foslist = thingsy[3]
+modes = thingsy[4]
 pos = 0
 mode = 0
 button = 0
@@ -82,22 +109,36 @@ highlighted_notes = []
 evil_highlight = []
 
 #just because i dont want to have to keep refixing all of the placements for the instructions
-ainfo = 490
+ainfo = 520
+nainfo = 370
 
 def scale(position,mode):
+    global fos, notes, seton
     #This handles all of the math for mapping out the notes and where they go on the fretboard
     notess = []
-    searching = [0,2,4,5,7,9,11]
+    searching = thingsy[0][:]
     fretboard = [[None for _ in range(fretboard_len)] for _ in range(len(tuning))]
     for i, x in enumerate(searching):
         searching[i] = (x+position) % 12
-        notess.append(SETON[(x+position) % 12].upper())
+        notess.append(((x+position) % 12))
+
+    temp_notess = []
+    foss = notess[0]
+    fos = foslist[foss]
+    notes = NOTESA if fos == 0 else NOTESB
+    seton = {v: k for k, v in notes.items()}
+    for i in notess:
+        temp_notess.append(seton[i])
+    notess = temp_notess
+    
     for i, x in enumerate(tuning):
+        x = seton[x]
         for z in range(fretboard_len):
-            a = True if NOTES[x] in searching else False
-            b = True if NOTES[x] == searching[mode] else False
+            a = True if notes[x] in searching else False
+            b = True if notes[x] == searching[mode] else False
             fretboard[i][z] = (x, a, b)
-            x = SETON[(NOTES[x] + 1) % 12]
+            x = seton[(notes[x] + 1) % 12]
+
 
     return notess, fretboard
 
@@ -118,7 +159,7 @@ def visuals(fretboard,notess):
                 else:
                     frets.append((pygame.Rect(WIDTH//fretboard_len*y,HEIGHT//(len(tuning))*((len(tuning)-1)-i),WIDTH//fretboard_len,HEIGHT//(len(tuning))), WHITE, note, selected))
             if cid_toggle == 1:
-                if NOTES[note] in highlighted_notes:
+                if notes[note] in highlighted_notes:
                     if key and root:
                         frets.append((pygame.Rect(WIDTH//fretboard_len*y,HEIGHT//(len(tuning))*((len(tuning)-1)-i),WIDTH//fretboard_len,HEIGHT//(len(tuning))), RED, note, selected))
                     elif key and not root:
@@ -220,7 +261,7 @@ def chord_id(notes):
         if not name:
             name = 'maj'
 
-        finished_chords.append(SETON[listem[0]].upper() + name)
+        finished_chords.append(seton[listem[0]].upper() + name)
 
     returning = ', '.join(finished_chords)
     if returning:
@@ -230,11 +271,11 @@ def chord_id(notes):
 
 def negative_harmony(position, highlights):
 
-    searching = [0,2,4,5,7,9,11]
+    searching = thingsy[0][:]
     for i, x in enumerate(searching):
         searching[i] = (x+position) % 12
 
-    tunering = [SETON[searching[0]]]
+    tunering = [seton[searching[0]]]
     notesy = []
     evil_notes = []
     actual_evil_notes = []
@@ -249,8 +290,11 @@ def negative_harmony(position, highlights):
     }
 
     ynomrah_tcid = {v: k for k, v in dict_harmony.items()}
+    if fos == 0:
+        thingers = 'c g d a e b f# c# g# d# a# f'.split(' ')
+    elif fos == 1:
+        thingers = 'c g d a e b g♭ d♭ a♭ e♭ b♭ f'.split(' ')
 
-    thingers = 'c g d a e b f# c# g# d# a# f'.split(' ')
     go = True
     while go:
         if thingers[0] != tunering[0]:
@@ -259,7 +303,7 @@ def negative_harmony(position, highlights):
             go = False
 
     for i in highlights:
-        x = thingers.index(SETON[i])+1
+        x = thingers.index(seton[i])+1
         try:
             evil_notes.append(dict_harmony[x])
         except:
@@ -267,10 +311,10 @@ def negative_harmony(position, highlights):
 
 
     for i in evil_notes:
-        actual_evil_notes.append(NOTES[thingers[i-1]])
+        actual_evil_notes.append(notes[thingers[i-1]])
 
     for i in actual_evil_notes:
-        notesy.append(SETON[i])
+        notesy.append(seton[i])
 
     return actual_evil_notes, ' '.join(notesy)
 
@@ -287,7 +331,7 @@ while running:
         if any(x != None for x in chord_show):
             for i, x in enumerate(chord_show):
                 if x != None:
-                    y = (NOTES[tuning[i]] + x) % 12
+                    y = (tuning[i] + x) % 12
                     if y not in evil_highlight:
                         evil_highlight.append(y)
 
@@ -311,7 +355,8 @@ while running:
 
     #Draws the notes to go with the frets
     for x, i in enumerate(tuning):
-        if button == 1 and string == x:
+        i = seton[i]
+        if button == 2 and string == x:
             string_text = FONT.render(i.upper(), True, (255, 0, 0))
         else:
             string_text = FONT.render(i.upper(), True, (0, 0, 0))
@@ -328,51 +373,62 @@ while running:
     #Draws all of the text for the instructions and other visuals
     color = GREEN if button == 0 else RED
     tuning_text = FONT.render('⬛', True, color)
-    screen.blit(tuning_text, (10, 340))
+    screen.blit(tuning_text, (10, nainfo-30))
 
     color = GREEN if button == 1 else RED
     tuning_text = FONT.render('⬛', True, color)
-    screen.blit(tuning_text, (10, 370))
+    screen.blit(tuning_text, (10, nainfo))
 
     color = GREEN if button == 2 else RED
     tuning_text = FONT.render('⬛', True, color)
-    screen.blit(tuning_text, (10, 400))
+    screen.blit(tuning_text, (10, nainfo+30))
 
     color = GREEN if button == 3 else RED
     tuning_text = FONT.render('⬛', True, color)
-    screen.blit(tuning_text, (10, 430))
+    screen.blit(tuning_text, (10, nainfo+60))
 
     color = GREEN if button == 4 else RED
     tuning_text = FONT.render('⬛', True, color)
-    screen.blit(tuning_text, (10, 460))
+    screen.blit(tuning_text, (10, nainfo+90))
+
+    color = GREEN if button == 5 else RED
+    tuning_text = FONT.render('⬛', True, color)
+    screen.blit(tuning_text, (10, nainfo+120))
 
     abseref = ', '.join(notess)
-    scale_text = FONT.render(f'{SETON[(searching[mode] + pos) % 12].upper()} {MODES[mode]} | {abseref} ', True, (0, 0, 0))
-    screen.blit(scale_text, (30, 340))
+    scale_text = FONT.render(f'{thingsy[2]}', True, (0, 0, 0))
+    screen.blit(scale_text, (30, nainfo-30))
 
-    tuning_text = FONT.render(f'Tuning: {"".join(tuning).upper()}', True, (0, 0, 0))
-    screen.blit(tuning_text, (30, 370))
+    scale_text = FONT.render(f'{seton[(searching[mode] + pos) % 12].upper()} {modes[mode]} | {abseref} ', True, (0, 0, 0))
+    screen.blit(scale_text, (30, nainfo))
+
+    tuning_list = []
+    for i in tuning:
+        tuning_list.append(seton[i])
+
+    tuning_text = FONT.render(f'Tuning: {"".join(tuning_list).upper()}', True, (0, 0, 0))
+    screen.blit(tuning_text, (30, nainfo+30))
 
     tuning_text = FONT.render(f'Instrument: {instruments[instrument_index]}', True, (0, 0, 0))
-    screen.blit(tuning_text, (30, 400))
+    screen.blit(tuning_text, (30, nainfo+60))
 
     tuning_text = FONT.render(f'Fret Amount: {fretboard_len}', True, (0, 0, 0))
-    screen.blit(tuning_text, (30, 430))
+    screen.blit(tuning_text, (30, nainfo+90))
 
     tuning_text = FONT.render(f'Mode: {CID_TOG_DICT[cid_toggle]}', True, (0, 0, 0))
-    screen.blit(tuning_text, (30, 460))
+    screen.blit(tuning_text, (30, nainfo+120))
 
     instructions = FONT.render('[LEFT/RIGHT] to change root note | [UP/DOWN] to change mode', True, (100, 100, 100))
-    screen.blit(instructions, (320, 340))
+    screen.blit(instructions, (430, nainfo))
 
     instructions = FONT.render('[LEFT/RIGHT] to tune the string | [UP/DOWN] to change string', True, (100, 100, 100))
-    screen.blit(instructions, (320, 370))
+    screen.blit(instructions, (430, nainfo+30))
 
     instructions = FONT.render('[LEFT/RIGHT] to change the instrument', True, (100, 100, 100))
-    screen.blit(instructions, (320, 400))
+    screen.blit(instructions, (430, nainfo+60))
 
     instructions = FONT.render('[LEFT/RIGHT] to change the amount of frets shown (This includes the 0th fret)', True, (100, 100, 100))
-    screen.blit(instructions, (320, 430))
+    screen.blit(instructions, (430, nainfo+90))
 
     instructions = FONT.render('Additional Info:', True, (0, 0, 0))
     screen.blit(instructions, (10, ainfo))
@@ -389,7 +445,7 @@ while running:
         if any(x != None for x in chord_show):
             for i, x in enumerate(chord_show):
                 if x != None:
-                    y = (NOTES[tuning[i]] + x) % 12
+                    y = (tuning[i] + x) % 12
                     if y not in a_chord_show:
                         a_chord_show.append(y)
 
@@ -411,7 +467,7 @@ while running:
         notes_selected = []
         highlighted_notes.sort()
         for i in highlighted_notes:
-            notes_selected.append(SETON[i].upper())
+            notes_selected.append(seton[i].upper())
         notes_selected = ', '.join(notes_selected)
 
         notes_selected = notes_selected if notes_selected else 'Awaiting Input...'
@@ -430,12 +486,17 @@ while running:
         #This block is for [1] and [2] going forward and backward on the options and [3] to reset everything back to standard tuning on the instrument
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
-                button = (button - 1) % 5
+                button = (button - 1) % 6
             if event.key == pygame.K_2:
-                button = (button + 1) % 5
+                button = (button + 1) % 6
             if event.key == pygame.K_3:
                 tuning = TUNINGS[instruments[instrument_index]][:]
-                searching = [0,2,4,5,7,9,11]
+                ipick = 0
+                thingsy = INTERVALS[ipick]
+                searching = thingsy[0][:]
+                switch = thingsy[1][:]
+                foslist = thingsy[3]
+                modes = thingsy[4]
                 pos = 0
                 mode = 0
                 string = 0
@@ -448,8 +509,30 @@ while running:
                 notess, fretboard = scale(pos,mode)
                 frets = visuals(fretboard, notess)
 
-            #This block handles changing scales
+
             if button == 0:
+                if event.key == pygame.K_RIGHT:
+                    ipick = (ipick + 1) % 2
+                    thingsy = INTERVALS[ipick]
+                    searching = thingsy[0][:]
+                    switch = thingsy[1][:]
+                    foslist = thingsy[3]
+                    modes = thingsy[4]
+                    notess, fretboard = scale(pos,mode)
+                    frets = visuals(fretboard, notess)
+                elif event.key == pygame.K_LEFT:
+                    ipick = (ipick - 1) % 2
+                    thingsy = INTERVALS[ipick]
+                    searching = thingsy[0][:]
+                    switch = thingsy[1][:]
+                    foslist = thingsy[3]
+                    modes = thingsy[4]
+                    notess, fretboard = scale(pos,mode)
+                    frets = visuals(fretboard, notess)
+                    
+                    
+            #This block handles changing scales
+            if button == 1:
                 if event.key == pygame.K_RIGHT:
                     pos = (pos + 1) % 12
                     notess, fretboard = scale(pos,mode)
@@ -470,22 +553,22 @@ while running:
                     frets = visuals(fretboard, notess)
             
             #This block handles chaning the tunings
-            elif button == 1:
+            elif button == 2:
                 if event.key == pygame.K_RIGHT:
-                    tuning[string] = SETON[(NOTES[tuning[string]] + 1) % 12]
+                    tuning[string] = (tuning[string] + 1) % 12
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_LEFT:
-                    tuning[string] = SETON[(NOTES[tuning[string]] - 1) % 12]
+                    tuning[string] = (tuning[string] - 1) % 12
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_UP:
-                    string = (string + 1) % (len(tuning))
+                    string = (string + 1) % (len(tuning)-1)
                 elif event.key == pygame.K_DOWN:
-                    string = (string - 1) % (len(tuning))
+                    string = (string - 1) % (len(tuning)-1)
                     
             #This block handles changing the instrument
-            elif button == 2:
+            elif button == 3:
                 if event.key == pygame.K_RIGHT:
                     instrument_index = (instrument_index + 1) % len(instruments)
                     tuning = TUNINGS[instruments[instrument_index]][:]
@@ -500,7 +583,7 @@ while running:
                     frets = visuals(fretboard, notess)
 
             #This block handles changing the amound of frets shown
-            elif button == 3:
+            elif button == 4:
                 if event.key == pygame.K_RIGHT:
                     fretboard_len += 1
                     notess, fretboard = scale(pos,mode)
@@ -518,7 +601,7 @@ while running:
                         notess, fretboard = scale(pos,mode)
                         frets = visuals(fretboard, notess)
 
-            elif button == 4:
+            elif button == 5:
                 if event.key == pygame.K_RIGHT:
                     cid_toggle = (cid_toggle + 1) % 2
                     chord_show = [None]*len(tuning)
@@ -550,10 +633,10 @@ while running:
                         chord_show[string] = fret
 
                 else:
-                    if (NOTES[tuning[string]]+fret)%12 not in highlighted_notes:
-                        highlighted_notes.append((NOTES[tuning[string]]+fret)%12)
-                    elif (NOTES[tuning[string]]+fret)%12 in highlighted_notes:
-                        highlighted_notes.remove((NOTES[tuning[string]]+fret)%12)
+                    if (tuning[string]+fret)%12 not in highlighted_notes:
+                        highlighted_notes.append((tuning[string]+fret)%12)
+                    elif (tuning[string]+fret)%12 in highlighted_notes:
+                        highlighted_notes.remove((tuning[string]+fret)%12)
 
                 notess, fretboard = scale(pos,mode)
                 frets = visuals(fretboard, notess)
