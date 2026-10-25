@@ -4,7 +4,7 @@ pygame.init()
 
 #Just initializing all of the constants
 
-AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1270, 1200, 670, 300
+AWIDTH, WIDTH, AHEIGHT, HEIGHT = 1270, 1200, 700, 300
 screen = pygame.display.set_mode((AWIDTH, AHEIGHT))
 RED = (255,0,0)
 GREEN = (0,255,0)
@@ -16,6 +16,8 @@ pygame.display.set_caption("Fretboard Visualizer")
 FONT = pygame.font.SysFont('Segoe UI Symbol', 15)
 CLOCK = pygame.time.Clock()
 
+ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii']
+
 CID_TOG_DICT = {
     0: 'Chord ID',
     1: 'Note Highlighter',
@@ -23,15 +25,6 @@ CID_TOG_DICT = {
 
 #Just here for easy visualization of the chord functions between modes
 #This especially helps because I have yet to move from purely sharps/# to including flats/b as well
-CHORD_FUNCTIONS = {
-    1: 'I – ii – iii – IV – V – vi – vii°',
-    2: 'i – ii – III – IV – v – vi° – VII',
-    3: 'i – II – III – iv – v° – VI – vii',
-    4: 'I – II – iii – iv° – V – vi – vii',
-    5: 'I – ii – iii° – IV – v – vi – VII',
-    6: 'i – ii° – III – iv – v – VI – VII',
-    7: 'i° – II – iii – iv – V – VI – vii'
-}
 
 #Just every note in the chromatic scale. Standard 12 tet stuff.
 NOTESA = {
@@ -69,26 +62,18 @@ fos = 0
 notes = NOTESA if fos == 0 else NOTESB
 seton = {v: k for k, v in notes.items()}
 
-#This is just for indexing in the TUNINGS dictionary
-instruments = ['Guitar','Bass Guitar','Ukulele','Mandolin']
-
-instrument_index = 0
-TUNINGS = {
-    'Guitar': [4,9,2,7,11,4],
-    'Bass Guitar': [4,9,2,7],
-    'Ukulele': [7,0,4,9],
-    'Mandolin': [7,2,9,4]
-}
-
 INTERVALS = {
-    0: ([0,2,4,5,7,9,11], [2,2,1,2,2,2,1], "Standard Diatonic Scales", [0,1,0,1,0,1,0,0,1,0,1,0], ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian']),
-    1: ([0,2,3,5,7,8,11], [2,1,2,2,1,3,1], "Harmonic Minor Scales and Modes", [1,0,1,0,0,1,0,1,0,0,1,0], ['Harmonic Minor', 'Locrian ♮6', 'Ionian ♯5', 'Dorian ♯4', 'Dorian ♯4', 'Lydian ♯2', 'Super Locrian diminished'])
-}
+    0: ([0,2,4,5,7,9,11], [2,2,1,2,2,2,1], "Standard Diatonic Scales", [0,1,0,1,0,1,0,0,1,0,1,0], ['Ionian','Dorian','Phrygian','Lydian','Mixolydian','Aeolian','Locrian'], [0,1,1,0,0,1,2]),
+    1: ([0,2,3,5,7,8,11], [2,1,2,2,1,3,1], "Harmonic Minor Scales and Modes", [1,0,1,0,0,1,0,1,0,0,1,0], ['Harmonic Minor', 'Locrian ♮6', 'Ionian ♯5', 'Dorian ♯4', 'Phrygian Dominant', 'Lydian ♯2', 'Super Locrian diminished'], [1,2,3,1,0,0,2]),
+    2: ([0,2,3,5,7,9,11], [2,1,2,2,2,2,1], "Melodic Minor Scales and Modes", [1,0,1,1,0,1,0,1,0,0,1,0], ['Melodic Minor','Dorian ♭2','Lydian Augmented','Lydian Dominant','Mixolydian ♭6','Locrian ♮2','Altered Scale'], [1,1,3,0,0,2,2]),
+    3: ([0,3,5,7,10], [3,2,2,3,2], "Minor Pentatonic Scales and Modes", [1,0,1,1,0,1,0,1,0,0,1,0], ['Minor Pentatonic','Major pentatonic','Suspended Pentatonic','Blues Minor Pentatonic','Ritusen Pentatonic'], 'N/A'),
+    4: ([0,2,3,4,7,9], [2,1,1,3,2,3], "Major Blues Scales and Modes", [1,0,1,1,0,1,1,1,0,0,1,0], ['Major Blues','Dorian ♭5 Pentatonic Hybrid','Altered Pentatonic Hybrid','Lydian/Phrygian Hybrid','Minor Blues','Inverted Blues Mode'], 'N/A')  
+}   
 
 ipick = 0
 
 #Just a bunch of variables that help to handle the math and modular stuff
-tuning = TUNINGS[instruments[instrument_index]][:]
+tuning = [4,9,2,7,11,4]
 
 #searching is used to pick out the notes from the scale 
 #switch is to handle the math for switching between the modes and stay on the same note
@@ -220,10 +205,16 @@ def chord_id(notes):
                 name = ""
         elif has_min3:
             name = "m"
+        elif 5 in a_list and not has_maj3 and not has_min3 and has_maj7:
+            name = "maj7sus4"
         elif 5 in a_list and not has_maj3 and not has_min3 and has_min7:
             name = "7sus4"
         elif 5 in a_list and not has_maj3 and not has_min3:
             name = "sus4"
+        elif 2 in a_list and not has_maj3 and not has_min3 and has_maj7:
+            name = "maj7sus2"
+        elif 2 in a_list and not has_maj3 and not has_min3 and has_min7:
+            name = "7sus2"
         elif 2 in a_list and not has_maj3 and not has_min3:
             name = "sus2"
         else:
@@ -263,7 +254,19 @@ def chord_id(notes):
 
         finished_chords.append(seton[listem[0]].upper() + name)
 
-    returning = ', '.join(finished_chords)
+    if len(finished_chords) != 0:
+        mostlikely = min(finished_chords, key=len)
+
+        finished_chords.remove(mostlikely)
+
+        returning = ', '.join(finished_chords)
+        returning = f'({returning})'
+
+        returning = f'{mostlikely}, {returning}'
+
+    else:
+        returning = []
+
     if returning:
         returning = returning if len(actual_notes) >= 3 else returning + ' #Caution: Chord names may be innacurate with less than 3 different notes selected.'
 
@@ -409,7 +412,7 @@ while running:
     tuning_text = FONT.render(f'Tuning: {"".join(tuning_list).upper()}', True, (0, 0, 0))
     screen.blit(tuning_text, (30, nainfo+30))
 
-    tuning_text = FONT.render(f'Instrument: {instruments[instrument_index]}', True, (0, 0, 0))
+    tuning_text = FONT.render(f'String Amount: {len(tuning)}', True, (0, 0, 0))
     screen.blit(tuning_text, (30, nainfo+60))
 
     tuning_text = FONT.render(f'Fret Amount: {fretboard_len}', True, (0, 0, 0))
@@ -471,11 +474,30 @@ while running:
         notes_selected = ', '.join(notes_selected)
 
         notes_selected = notes_selected if notes_selected else 'Awaiting Input...'
+
+        chord = chord_id(highlighted_notes)
         
-        instructions = FONT.render(f'Selected Notes: {notes_selected}', True, (0, 0, 0))
+        instructions = FONT.render(f'Selected Notes: {notes_selected}, Potential Chord Names: {chord}', True, (0, 0, 0))
         screen.blit(instructions, (10, ainfo+90))
 
-    instructions = FONT.render(f'Chord Functions: {CHORD_FUNCTIONS[mode+1]}', True, (0, 0, 0))
+    functions = []
+    actual_f_list = thingsy[5][:]
+    if actual_f_list != 'N/A':
+        for i in range(mode):
+            actual_f_list.append(actual_f_list.pop(0))
+        for i, x in enumerate(actual_f_list):
+            func_let = ROMAN[i]
+            if x == 0:
+                func_let = func_let.upper()
+            if x == 2:
+                func_let += '°'
+            if x == 3:
+                func_let = func_let.upper()
+                func_let += '+'
+            functions.append(func_let)
+        functions = (', '.join(map(str, functions)))
+
+    instructions = FONT.render(f'Chord Functions: {functions}', True, (0, 0, 0))
     screen.blit(instructions, (10, ainfo+120))
 
     #Button inputs
@@ -490,7 +512,7 @@ while running:
             if event.key == pygame.K_2:
                 button = (button + 1) % 6
             if event.key == pygame.K_3:
-                tuning = TUNINGS[instruments[instrument_index]][:]
+
                 ipick = 0
                 thingsy = INTERVALS[ipick]
                 searching = thingsy[0][:]
@@ -512,21 +534,23 @@ while running:
 
             if button == 0:
                 if event.key == pygame.K_RIGHT:
-                    ipick = (ipick + 1) % 2
+                    ipick = (ipick + 1) % 5
                     thingsy = INTERVALS[ipick]
                     searching = thingsy[0][:]
                     switch = thingsy[1][:]
                     foslist = thingsy[3]
                     modes = thingsy[4]
+                    mode = 0
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_LEFT:
-                    ipick = (ipick - 1) % 2
+                    ipick = (ipick - 1) % 5
                     thingsy = INTERVALS[ipick]
                     searching = thingsy[0][:]
                     switch = thingsy[1][:]
                     foslist = thingsy[3]
                     modes = thingsy[4]
+                    mode = 0
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                     
@@ -543,11 +567,11 @@ while running:
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_UP:
                     pos = (pos - switch[mode]) % 12
-                    mode = (mode + 1) % 7
+                    mode = (mode + 1) % len(modes)
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_DOWN:
-                    mode = (mode - 1) % 7
+                    mode = (mode - 1) % len(modes)
                     pos = (pos + switch[mode]) % 12
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
@@ -563,24 +587,26 @@ while running:
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_UP:
-                    string = (string + 1) % (len(tuning)-1)
+                    string = (string + 1) % (len(tuning))
                 elif event.key == pygame.K_DOWN:
-                    string = (string - 1) % (len(tuning)-1)
+                    string = (string - 1) % (len(tuning))
                     
             #This block handles changing the instrument
             elif button == 3:
                 if event.key == pygame.K_RIGHT:
-                    instrument_index = (instrument_index + 1) % len(instruments)
-                    tuning = TUNINGS[instruments[instrument_index]][:]
+                    if len(tuning) == 2:
+                        tuning.insert(0, ((tuning[0]-4) % 12))
+                    else:
+                        tuning.insert(0, ((tuning[0]-5) % 12))
                     chord_show = [None]*len(tuning)
                     notess, fretboard = scale(pos,mode)
                     frets = visuals(fretboard, notess)
                 elif event.key == pygame.K_LEFT:
-                    instrument_index = (instrument_index - 1) % len(instruments)
-                    tuning = TUNINGS[instruments[instrument_index]][:]
-                    chord_show = [None]*len(tuning)
-                    notess, fretboard = scale(pos,mode)
-                    frets = visuals(fretboard, notess)
+                    if len(tuning) != 1:
+                        tuning.pop(0)
+                        chord_show = [None]*len(tuning)
+                        notess, fretboard = scale(pos,mode)
+                        frets = visuals(fretboard, notess)
 
             #This block handles changing the amound of frets shown
             elif button == 4:
@@ -640,8 +666,7 @@ while running:
 
                 notess, fretboard = scale(pos,mode)
                 frets = visuals(fretboard, notess)
-                
-                      
+                                
     pygame.display.update()
     CLOCK.tick(60)
 
