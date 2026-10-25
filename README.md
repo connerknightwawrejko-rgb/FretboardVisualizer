@@ -8,11 +8,10 @@ guitar with fewer resources to learn the fretboard (I get that I can just use mu
 knowledge in order to map out the fretboard in my head but I just like having a visual in
 front of me.)
 
-This Python script can show up to 84 different scales (all 12 notes in the chromatic 
-scale in all 7 modes.) in any conceivable tuning. None of the theory is hard coded in 
-(other than the standard/common tuning for all of the instruments so far) everything is 
-solved by math, and the code is very modular allowing for the addition of things in 
-minutes whether it be adding another instrument or whatever.
+This Python script can show up to around 384 different scales in any conceivable tuning and 
+any number of strings. None of the theory is really hard coded in within reason everything is 
+solved by math, and the code is very modular allowing for the addition of things in minutes 
+whether it be adding another instrument or whatever.
 
 Also, after I updated it recently, it now has a built in chord detection engine that
 can identify most chords you'd need it to as well as being able to identify complex
@@ -32,7 +31,8 @@ I get this Isn't something too crazy or groundbreaking but I just thought that I
 it out there any ways.
 
 (Here's a still frame of it.)
-<img width="1238" height="668" alt="image" src="https://github.com/user-attachments/assets/1cfc4591-c013-4fe3-b11a-442051dfc840" />
+<img width="1269" height="700" alt="Screenshot 2026-10-25 011059" src="https://github.com/user-attachments/assets/3d11f21e-7154-4305-bcd2-fbf7a1ebf182" />
+
 
 
 
