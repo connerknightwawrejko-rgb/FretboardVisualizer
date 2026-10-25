@@ -23,9 +23,6 @@ CID_TOG_DICT = {
     1: 'Note Highlighter',
 }
 
-#Just here for easy visualization of the chord functions between modes
-#This especially helps because I have yet to move from purely sharps/# to including flats/b as well
-
 #Just every note in the chromatic scale. Standard 12 tet stuff.
 NOTESA = {
     'c': 0,
@@ -311,7 +308,6 @@ def negative_harmony(position, highlights):
             evil_notes.append(dict_harmony[x])
         except:
             evil_notes.append(ynomrah_tcid[x])
-
 
     for i in evil_notes:
         actual_evil_notes.append(notes[thingers[i-1]])
