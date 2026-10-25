@@ -587,7 +587,7 @@ while running:
                 elif event.key == pygame.K_DOWN:
                     string = (string - 1) % (len(tuning))
                     
-            #This block handles changing the instrument
+            #This block handles changing the number of strings
             elif button == 3:
                 if event.key == pygame.K_RIGHT:
                     if len(tuning) == 2:
